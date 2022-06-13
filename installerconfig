@@ -35,6 +35,12 @@ export PASSWORD={{ enter password here }}
 echo "${USERNAME}" | pw useradd -n "${USERNAME}" -h 0 -m -s /bin/tcsh
 echo "${PASSWORD}" | pw usermod "${PASSWORD}" -h 0 -s /bin/tcsh
 
+cat <<EOF > /usr/local/etc/sudoers.d/"${USERNAME}" 
+Defaults:"${USERNAME}"  !requiretty
+"${USERNAME}" ALL=(ALL) NOPASSWD: ALL
+EOF
+chmod 440 /usr/local/etc/sudoers.d/"${USERNAME}" 
+
 # Select the network interface available
 ifdev=$(ifconfig | grep '^[a-z]' | cut -d: -f1 | head -n 1)
 
