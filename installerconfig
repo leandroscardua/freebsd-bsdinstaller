@@ -4,6 +4,18 @@ export DISTRIBUTIONS="base.txz kernel.txz"
 # Non-interactive
 export nonInteractive="YES"
 
+# for variations in the root disk device name between VMware and Virtualbox
+if [ -e /dev/ada0 ]; then
+  DISKSLICE=ada0
+elif [ -e /dev/da0 ]; then
+  DISKSLICE=da0
+elif [ -e /dev/vtbd0 ]; then
+  DISKSLICE=vtbd0
+else
+  echo "Unknown disk for install.sh to work with!"
+  exit -1
+fi
+
 #Using Partition the disk with ZFS
 export ZFSBOOT_DISKS="$DISKSLICE"
 export ZFSBOOT_VDEV_TYPE="stripe"
@@ -16,19 +28,6 @@ export HOSTNAME=freebsd.lan
 #Setting username and password
 export USERNAME=(( enter usename here }}
 export PASSWORD={{ enter password here }}
-
-
-# for variations in the root disk device name between VMware and Virtualbox
-if [ -e /dev/ada0 ]; then
-  DISKSLICE=ada0
-elif [ -e /dev/da0 ]; then
-  DISKSLICE=da0
-elif [ -e /dev/vtbd0 ]; then
-  DISKSLICE=vtbd0
-else
-  echo "Unknown disk for install.sh to work with!"
-  exit -1
-fi
 
 #!/bin/sh -x
 
