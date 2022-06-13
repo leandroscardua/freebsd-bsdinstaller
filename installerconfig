@@ -1,18 +1,22 @@
 # Selecting Components to Install
 export DISTRIBUTIONS="base.txz kernel.txz"
 
-
+# Non-interactive
 export nonInteractive="YES"
 
+#Using Partition the disk with ZFS
 export ZFSBOOT_DISKS="$DISKSLICE"
 export ZFSBOOT_VDEV_TYPE="stripe"
 export ZFSBOOT_SWAP_SIZE=2g
 export ZFSBOOT_CONFIRM_LAYOUT=1
 
+# Setting hostname
 export HOSTNAME=freebsd
 
+#Setting username and password
 export USERNAME=(( enter usename here }}
 export PASSWORD={{ enter password here }}
+
 
 # for variations in the root disk device name between VMware and Virtualbox
 if [ -e /dev/ada0 ]; then
@@ -28,9 +32,10 @@ fi
 
 #!/bin/sh -x
 
+# Select the network interface available
 ifdev=$(ifconfig | grep '^[a-z]' | cut -d: -f1 | head -n 1)
 
-# Enable required services
+# Enable/disable required services at boot
 cat >> /etc/rc.conf << EOT
 ifconfig_${ifdev}="dhcp"
 sshd_enable="YES"
@@ -38,13 +43,19 @@ sendmail_enable="NO"
 hostname="${HOSTNAME}"
 EOT
 
+# Get a IP on the interface
 dhclient ${ifdev}
 
+# Create user
 echo "${USERNAME}" | pw useradd -n "${USERNAME}" -h 0 -m -s /bin/tcsh
 echo "${PASSWORD}" | pw usermod "${PASSWORD}" -h 0 -s /bin/tcsh
 
+# Bootstrap the system
 env ASSUME_ALWAYS_YES=YES pkg bootstrap -f
 
+# Install basic pkg
 pkg install -y sudo
 
+
+# Poweroff the system
 poweroff
