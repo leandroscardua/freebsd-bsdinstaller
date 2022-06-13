@@ -38,6 +38,7 @@ ifdev=$(ifconfig | grep '^[a-z]' | cut -d: -f1 | head -n 1)
 # Enable/disable required services at boot
 cat >> /etc/rc.conf << EOT
 ifconfig_${ifdev}="dhcp"
+keymap="us.kbd"
 sshd_enable="YES"
 sendmail_enable="NO"
 hostname="${HOSTNAME}"
