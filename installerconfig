@@ -10,8 +10,8 @@ export ZFSBOOT_VDEV_TYPE="stripe"
 export ZFSBOOT_SWAP_SIZE=2g
 export ZFSBOOT_CONFIRM_LAYOUT=1
 
-# Setting hostname
-export HOSTNAME=freebsd
+# Setting hostname name.domain
+export HOSTNAME=freebsd.lan
 
 #Setting username and password
 export USERNAME=(( enter usename here }}
