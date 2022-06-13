@@ -1,0 +1,50 @@
+# Selecting Components to Install
+export DISTRIBUTIONS="base.txz kernel.txz"
+
+
+export nonInteractive="YES"
+
+export ZFSBOOT_DISKS="$DISKSLICE"
+export ZFSBOOT_VDEV_TYPE="stripe"
+export ZFSBOOT_SWAP_SIZE=2g
+export ZFSBOOT_CONFIRM_LAYOUT=1
+
+export HOSTNAME=freebsd
+
+export USERNAME=(( enter usename here }}
+export PASSWORD={{ enter password here }}
+
+# for variations in the root disk device name between VMware and Virtualbox
+if [ -e /dev/ada0 ]; then
+  DISKSLICE=ada0
+elif [ -e /dev/da0 ]; then
+  DISKSLICE=da0
+elif [ -e /dev/vtbd0 ]; then
+  DISKSLICE=vtbd0
+else
+  echo "Unknown disk for install.sh to work with!"
+  exit -1
+fi
+
+#!/bin/sh -x
+
+ifdev=$(ifconfig | grep '^[a-z]' | cut -d: -f1 | head -n 1)
+
+# Enable required services
+cat >> /etc/rc.conf << EOT
+ifconfig_${ifdev}="dhcp"
+sshd_enable="YES"
+sendmail_enable="NO"
+hostname="${HOSTNAME}"
+EOT
+
+dhclient ${ifdev}
+
+echo "${USERNAME}" | pw useradd -n "${USERNAME}" -h 0 -m -s /bin/tcsh
+echo "${PASSWORD}" | pw usermod "${PASSWORD}" -h 0 -s /bin/tcsh
+
+env ASSUME_ALWAYS_YES=YES pkg bootstrap -f
+
+pkg install -y sudo
+
+poweroff
