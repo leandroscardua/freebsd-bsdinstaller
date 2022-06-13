@@ -41,7 +41,14 @@ ifconfig_${ifdev}="dhcp"
 sshd_enable="YES"
 sendmail_enable="NO"
 hostname="${HOSTNAME}"
+ntpd_enable="YES"
+ntpd_sync_on_start="YES"
 EOT
+
+# Set Time Zone
+/bin/cp /usr/share/zoneinfo/EST /etc/localtime
+/usr/bin/touch /etc/wall_cmos_clock
+/sbin/adjkerntz -a
 
 # Get a IP on the interface
 dhclient ${ifdev}
@@ -53,8 +60,18 @@ echo "${PASSWORD}" | pw usermod "${PASSWORD}" -h 0 -s /bin/tcsh
 # Bootstrap the system
 env ASSUME_ALWAYS_YES=YES pkg bootstrap -f
 
+# Download updates
+freebsd-update fetch 
+freebsd-update install
+
 # Install basic pkg
 pkg install -y sudo
+
+# remove the autounattend file and system cleanup
+rm -rf /var/db/freebsd-update/*
+rm -rf /boot/kernel/*.symbols
+rm -rf /tmp/installscript
+rm -rf /etc/installscript
 
 
 # Poweroff the system
